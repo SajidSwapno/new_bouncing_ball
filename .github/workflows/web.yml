@@ -24,19 +24,13 @@ jobs:
         with:
           version: latest
 
-      - name: Build raylib for Web
-        run: |
-          cd raylib/raylib-6.0/src
-          make clean
-          make PLATFORM=PLATFORM_WEB
-
       - name: Build game
         run: |
           mkdir -p web
 
           emcc main.c \
-            -Iraylib/raylib-6.0/src \
-            raylib/raylib-6.0/src/libraylib.a \
+            -Iraylib/raylib-6.0_webassembly/include \
+            raylib/raylib-6.0_webassembly/lib/libraylib.a \
             -o web/index.html \
             -DPLATFORM_WEB \
             -s USE_GLFW=3 \
