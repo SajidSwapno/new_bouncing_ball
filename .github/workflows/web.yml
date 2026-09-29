@@ -30,7 +30,7 @@ jobs:
 
           emcc main.c \
             -Iraylib/raylib-6.0_webassembly/include \
-            raylib/raylib-6.0_webassembly/lib/libraylib.a \
+            raylib/raylib-6.0_webassembly/lib/libraylib.web.a \
             -o web/index.html \
             -DPLATFORM_WEB \
             -s USE_GLFW=3 \
