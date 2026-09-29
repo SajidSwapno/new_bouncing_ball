@@ -1,0 +1,71 @@
+name: Build Bouncing Ball Web Game
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
+      - name: Build raylib for Web
+        run: |
+          cd raylib/raylib-6.0/src
+          make clean
+          make PLATFORM=PLATFORM_WEB
+
+      - name: Build game
+        run: |
+          mkdir -p web
+
+          emcc main.c \
+            -Iraylib/raylib-6.0/src \
+            raylib/raylib-6.0/src/libraylib.a \
+            -o web/index.html \
+            -DPLATFORM_WEB \
+            -s USE_GLFW=3 \
+            -s ASYNCIFY \
+            -s ALLOW_MEMORY_GROWTH=1 \
+            --preload-file assets@assets \
+            -O2
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
